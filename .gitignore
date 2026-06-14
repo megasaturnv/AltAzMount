@@ -1,3 +1,5 @@
 gitignore/
 3D Prints - OpenSCAD/gears.scad
 3D Prints - SketchUp/*.skb
+ESP32 Code/AltAzTracker_MKS_DLC32/pcint.h
+ESP32 Code/AltAzTracker_MKS_DLC32/pcint.cpp
