@@ -231,10 +231,10 @@ void setTargetToObject(char *strObject) {
   structRADec objectRADec;
   bool validObject = false;
   if (strObject == "Sun") {
-    objectRADec = getRADecOfObject_Moon(rtc);
+    objectRADec = getRADecOfObject_Sun(rtc);
     validObject = true;
   } else if (strObject == "Moon") {
-    objectRADec = getRADecOfObject_Sun(rtc);
+    objectRADec = getRADecOfObject_Moon(rtc);
     validObject = true;
   } else {
     OLED_print("Target to unknown object", WARNING);
