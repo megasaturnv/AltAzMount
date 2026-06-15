@@ -52,9 +52,6 @@
 //#define ENCODER_SENSITIVITY 8
 #define ENCODER_SENSITIVITY 16
 
-/*Demonstrate PWM with LED on D11*/
-#define LED_PIN 2                //Defined LED Pin to D11
-
 #define MAX_DEPTH 3
 
 #ifdef LOC

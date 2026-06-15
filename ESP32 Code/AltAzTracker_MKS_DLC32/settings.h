@@ -100,4 +100,7 @@ extern const int PIN_TTL;
 extern const int OLED_SDA;
 extern const int OLED_SCL;
 
+//LED Pin
+extern const int LED_PIN;
+
 #endif // FUNCTIONS_SETTINGS_H

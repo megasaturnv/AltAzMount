@@ -83,3 +83,6 @@ const int PIN_TTL = 32; //Also marked as LC in schematic
 //I2C pins
 const int OLED_SDA = 0;
 const int OLED_SCL = 4;
+
+//LED Pin
+const int LED_PIN = 2;
