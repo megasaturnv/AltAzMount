@@ -9,16 +9,16 @@
 #include "functions_oled_print.h"
 #include "functions_AltAz_RADec_conversion.h"
 
-structRADec getRADecOfObject_Sun(ESP32Time &rtc) {
+structRADec getRADecOfObject_Sun(ESP32Time &rtcESP32Time) {
     // Standard low-precision solar position algorithm
 
     // Get UTC date/time from ESP32Time
-    int year   = rtc.getYear();
-    int month  = rtc.getMonth() + 1;   // ESP32Time months are typically 0-11
-    int day    = rtc.getDay();
-    int hour   = rtc.getHour(true);    // 24-hour format
-    int minute = rtc.getMinute();
-    int second = rtc.getSecond();
+    int year   = rtcESP32Time.getYear();
+    int month  = rtcESP32Time.getMonth() + 1;   // ESP32Time months are typically 0-11
+    int day    = rtcESP32Time.getDay();
+    int hour   = rtcESP32Time.getHour(true);    // 24-hour format
+    int minute = rtcESP32Time.getMinute();
+    int second = rtcESP32Time.getSecond();
 
     double JD = julianDate(year, month, day, hour, minute, second);
 
@@ -90,14 +90,14 @@ structRADec getRADecOfObject_Sun(ESP32Time &rtc) {
     return result;
 }
 
-structRADec getRADecOfObject_Moon(ESP32Time &rtc) {
+structRADec getRADecOfObject_Moon(ESP32Time &rtcESP32Time) {
     //Uses a truncated version of the Meeus algorithm
-    int year   = rtc.getYear();
-    int month  = rtc.getMonth() + 1;
-    int day    = rtc.getDay();
-    int hour   = rtc.getHour(true);
-    int minute = rtc.getMinute();
-    int second = rtc.getSecond();
+    int year   = rtcESP32Time.getYear();
+    int month  = rtcESP32Time.getMonth() + 1;
+    int day    = rtcESP32Time.getDay();
+    int hour   = rtcESP32Time.getHour(true);
+    int minute = rtcESP32Time.getMinute();
+    int second = rtcESP32Time.getSecond();
 
     double JD = julianDate(year, month, day, hour, minute, second);
 
@@ -225,16 +225,16 @@ structRADec getRADecOfObject_Moon(ESP32Time &rtc) {
     return result;
 }
 
-void setTargetToObject(char *strObject) {
+void setTargetToObject(const char *strObject) {
   OLED_print("Target to object", INFO);
   
   structRADec objectRADec;
   bool validObject = false;
   if (strObject == "Sun") {
-    objectRADec = getRADecOfObject_Sun(rtc);
+    objectRADec = getRADecOfObject_Sun(rtcESP32Time);
     validObject = true;
   } else if (strObject == "Moon") {
-    objectRADec = getRADecOfObject_Moon(rtc);
+    objectRADec = getRADecOfObject_Moon(rtcESP32Time);
     validObject = true;
   } else {
     OLED_print("Target to unknown object", WARNING);
@@ -254,7 +254,7 @@ void setTargetToObject(char *strObject) {
 //Convert J2000 to current date. Used for non-solar system objects from cataglogue
 //Example
 //structRADec polarisJ2000;
-//double JD = julianDate(rtc.getYear(), rtc.getMonth() + 1, rtc.getDay(), rtc.getHour(true), rtc.getMinute(), rtc.getSecond());
+//double JD = julianDate(rtcESP32Time.getYear(), rtcESP32Time.getMonth() + 1, rtcESP32Time.getDay(), rtcESP32Time.getHour(true), rtcESP32Time.getMinute(), rtcESP32Time.getSecond());
 //structRADec polarisNow = precessJ2000ToDate(polarisJ2000, JD);
 
 structRADec precessJ2000ToDate(

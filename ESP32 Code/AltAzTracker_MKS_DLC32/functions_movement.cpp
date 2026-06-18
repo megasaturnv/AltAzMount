@@ -284,13 +284,13 @@ double positionGetAngleAz() {
 
 //Get HMS Right Ascension of current position
 structHoursMinutesSeconds positionGetHMSRA() {
-    structRADec currentRADec = altAzToRaDecJNow(positionGetAngleAlt(), positionGetAngleAz(), latitudeDecimal, longitudeDecimal, rtc.getYear(), rtc.getMonth()+1, rtc.getDay(), rtc.getHour(true), rtc.getMinute(), rtc.getSecond());
+    structRADec currentRADec = altAzToRaDecJNow(positionGetAngleAlt(), positionGetAngleAz(), latitudeDecimal, longitudeDecimal, rtcESP32Time.getYear(), rtcESP32Time.getMonth()+1, rtcESP32Time.getDay(), rtcESP32Time.getHour(true), rtcESP32Time.getMinute(), rtcESP32Time.getSecond());
     return currentRADec.rightAscension;
 }
 
 //Get DMS Declination of current position
 structDegreesMinutesSeconds positionGetDMSDec() {
-    structRADec currentRADec = altAzToRaDecJNow(positionGetAngleAlt(), positionGetAngleAz(), latitudeDecimal, longitudeDecimal, rtc.getYear(), rtc.getMonth()+1, rtc.getDay(), rtc.getHour(true), rtc.getMinute(), rtc.getSecond());
+    structRADec currentRADec = altAzToRaDecJNow(positionGetAngleAlt(), positionGetAngleAz(), latitudeDecimal, longitudeDecimal, rtcESP32Time.getYear(), rtcESP32Time.getMonth()+1, rtcESP32Time.getDay(), rtcESP32Time.getHour(true), rtcESP32Time.getMinute(), rtcESP32Time.getSecond());
     return currentRADec.declination;
 }
 
@@ -364,7 +364,7 @@ bool steppersHaltMovement() {
 }
 
 bool positionSetTargetRADec(structHoursMinutesSeconds ra, structDegreesMinutesSeconds dec) {
-    structAltAz moveToAltAzValue = raDecToAltAzJNow(ra, dec, latitudeDecimal, longitudeDecimal, rtc.getYear(), rtc.getMonth()+1, rtc.getDay(), rtc.getHour(true), rtc.getMinute(), rtc.getSecond());
+    structAltAz moveToAltAzValue = raDecToAltAzJNow(ra, dec, latitudeDecimal, longitudeDecimal, rtcESP32Time.getYear(), rtcESP32Time.getMonth()+1, rtcESP32Time.getDay(), rtcESP32Time.getHour(true), rtcESP32Time.getMinute(), rtcESP32Time.getSecond());
     LX200TargetAlt = moveToAltAzValue.altitudeDeg;
     LX200TargetAz = moveToAltAzValue.azimuthDeg;
     bool boolReturn = positionSetTargetAltAz(LX200TargetAlt, LX200TargetAz);

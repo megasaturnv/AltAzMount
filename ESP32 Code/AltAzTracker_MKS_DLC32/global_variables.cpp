@@ -14,13 +14,17 @@
   //U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, 0, 4);
 #endif
 
-ESP32Time rtc;
+RTC_DS3231 rtcDS3231;
+ESP32Time rtcESP32Time;
 
 class_AltAzPreferences altAzPreferences;
 
 // Shift register state byte
 uint8_t srState = 0;
 //static volatile uint8_t srState = 0;
+
+//struct used when setting a new date and time
+struct tm setNewDateAndTime;
 
 // OLED print debug level
 debugLevel setting_OledPrintDebugLevel = WARNING; //INFO will print INFO, WARNING AND ERROR. WARN will print WARNING, ERROR. ERROR will print only ERRORs

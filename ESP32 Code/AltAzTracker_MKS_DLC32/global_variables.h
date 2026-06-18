@@ -11,6 +11,7 @@
 
 // Date and Time
 #include <ESP32Time.h>
+#include <RTClib.h>
 
 #include "structures.h"
 #include "settings.h"
@@ -28,12 +29,16 @@
   //extern U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2;
 #endif
 
-extern ESP32Time rtc;
+extern RTC_DS3231 rtcDS3231;
+extern ESP32Time rtcESP32Time;
 
 extern class_AltAzPreferences altAzPreferences;
 
 // Shift register state byte
 extern uint8_t srState;
+
+//struct used when setting a new date and time
+extern struct tm setNewDateAndTime;
 
 //OLED print debug level
 enum debugLevel { INFO, WARNING, ERROR };

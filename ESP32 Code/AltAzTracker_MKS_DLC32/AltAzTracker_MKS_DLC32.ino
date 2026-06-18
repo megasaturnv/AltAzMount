@@ -185,7 +185,7 @@ result idle(menuOut &o, idleEvent e) {
       break;
     case idling:
       //o.println("suspended...");
-      o.printf("%d %d %d %d %d %d\n", rtc.getYear(),    rtc.getMonth()+1,    rtc.getDay(),    rtc.getHour(true),   rtc.getMinute(),    rtc.getSecond()    );
+      o.printf("%d %d %d %d %d %d\n", rtcESP32Time.getYear(),    rtcESP32Time.getMonth()+1,    rtcESP32Time.getDay(),    rtcESP32Time.getHour(true),   rtcESP32Time.getMinute(),    rtcESP32Time.getSecond()    );
       o.printf("%f, %f\n", latitudeDecimal, longitudeDecimal);
       break;
     case idleEnd:
@@ -196,12 +196,22 @@ result idle(menuOut &o, idleEvent e) {
   return proceed;
 }
 
-result UpdateLatitudeDecimal(eventMask e) {
+result menuEvent_updateNewDateAndTimeVariable(eventMask e) {
+  setNewDateAndTime.tm_year = rtcESP32Time.getYear();
+  setNewDateAndTime.tm_mon = rtcESP32Time.getMonth();
+  setNewDateAndTime.tm_mday = rtcESP32Time.getDay();
+  setNewDateAndTime.tm_hour = rtcESP32Time.getHour();
+  setNewDateAndTime.tm_min = rtcESP32Time.getMinute();
+  setNewDateAndTime.tm_sec = rtcESP32Time.getSecond();
+  return proceed;
+}
+
+result menuEvent_updateLatitudeDecimal(eventMask e) {
   latitudeDecimal = dmsToDegrees(latitudeDMSDegrees, latitudeDMSMinutes, latitudeDMSSeconds);
   return proceed;
 }
 
-result UpdateLongitudeDecimal(eventMask e) {
+result menuEvent_updateLongitudeDecimal(eventMask e) {
   longitudeDecimal = dmsToDegrees(longitudeDMSDegrees, longitudeDMSMinutes, longitudeDMSSeconds);
   return proceed;
 }
@@ -215,6 +225,26 @@ result action1(eventMask e) {
 }
 
 result action2(eventMask e, navNode& nav, prompt &item) {
+  return quit;
+}
+
+result op_setDatetimeOnRTC(eventMask e) {
+  rtcDS3231.adjust(DateTime(
+    setNewDateAndTime.tm_year,
+    setNewDateAndTime.tm_mon,
+    setNewDateAndTime.tm_mday,
+    setNewDateAndTime.tm_hour,
+    setNewDateAndTime.tm_min,
+    setNewDateAndTime.tm_sec
+  ));
+  rtcESP32Time.setTime(
+    setNewDateAndTime.tm_sec,
+    setNewDateAndTime.tm_min,
+    setNewDateAndTime.tm_hour,
+    setNewDateAndTime.tm_mday,
+    setNewDateAndTime.tm_mon,
+    setNewDateAndTime.tm_year
+  );
   return quit;
 }
 
@@ -269,32 +299,35 @@ result op_stopTracking(eventMask e) {
   return proceed;
 }
 
+
+
 // # Menu items
-MENU(subMenu_SetDateAndTime, "Set Date And Time", doNothing, noEvent, noStyle
-  , OP("Set Date Year", doNothing, noEvent)
-  , OP("Set Date Month", doNothing, noEvent)
-  , OP("Set Date Day", doNothing, noEvent)
-  , OP("Set Time Hour", doNothing, noEvent)
-  , OP("Set Time Minute", doNothing, noEvent)
-  , OP("Set Time Second", doNothing, noEvent)
+MENU(subMenu_SetDateAndTime, "Set UTC Date And Time", menuEvent_updateNewDateAndTimeVariable, enterEvent, noStyle
+  , FIELD(setNewDateAndTime.tm_year,"Year","", 2000, 2100, 10, 1, doNothing, noEvent, noStyle)
+  , FIELD(setNewDateAndTime.tm_mon,"Month","", 0, 11, 10, 1, doNothing, noEvent, noStyle) //todo, use intermediate month variable, then set that -1 to value of tm_mon
+  , FIELD(setNewDateAndTime.tm_mday,"Day","", 1, 31, 10, 1, doNothing, noEvent, noStyle)
+  , FIELD(setNewDateAndTime.tm_hour,"Hour","", 0, 23, 10, 1, doNothing, noEvent, noStyle)
+  , FIELD(setNewDateAndTime.tm_min,"Minute","", 0, 59, 10, 1, doNothing, noEvent, noStyle)
+  , FIELD(setNewDateAndTime.tm_sec,"Second","", 0, 59, 10, 1, doNothing, noEvent, noStyle)
+  , OP("Set datetime on RTC", op_setDatetimeOnRTC, enterEvent)
   , EXIT("<Back")
 );
 
 MENU(subMenu_SetLatitude, "Set Latitude", doNothing, noEvent, noStyle
-  //, FIELD(latitudeDecimal,"Lat","°", -90.0, 90.0, 10, 0.1, UpdateLatitudeDMS, enterEvent, noStyle)
+  //, FIELD(latitudeDecimal,"Lat","°", -90.0, 90.0, 10, 0.1, menuEvent_updateLatitudeDMS, enterEvent, noStyle)
   , FIELD(latitudeDecimal,"Lat","°", -90.0, 90.0, 10, 0.1, doNothing, noEvent, noStyle)
-  , FIELD(latitudeDMSDegrees, "Lat Deg", "°", -90, 90, 10, 1, UpdateLatitudeDecimal, enterEvent, noStyle)
-  , FIELD(latitudeDMSMinutes, "Lat Min", "'", 0, 59, 10, 1, UpdateLatitudeDecimal, enterEvent, noStyle)
-  , FIELD(latitudeDMSSeconds, "Lat Sec", "\"", 0, 59, 10, 0.1, UpdateLatitudeDecimal, enterEvent, noStyle)
+  , FIELD(latitudeDMSDegrees, "Lat Deg", "°", -90, 90, 10, 1, menuEvent_updateLatitudeDecimal, enterEvent, noStyle)
+  , FIELD(latitudeDMSMinutes, "Lat Min", "'", 0, 59, 10, 1, menuEvent_updateLatitudeDecimal, enterEvent, noStyle)
+  , FIELD(latitudeDMSSeconds, "Lat Sec", "\"", 0, 59, 10, 0.1, menuEvent_updateLatitudeDecimal, enterEvent, noStyle)
   , EXIT("<Back")
 );
 
 MENU(subMenu_SetLongitude, "Set Longitude", doNothing, noEvent, noStyle
-  //, FIELD(longitudeDecimal,"Long","°", -90.0, 90.0, 10, 0.1, UpdateLongitudeDMS, enterEvent, noStyle)
+  //, FIELD(longitudeDecimal,"Long","°", -90.0, 90.0, 10, 0.1, menuEvent_updateLongitudeDMS, enterEvent, noStyle)
   , FIELD(longitudeDecimal,"Long","°", -90.0, 90.0, 10, 0.1, doNothing, noEvent, noStyle)
-  , FIELD(longitudeDMSDegrees, "Lat Deg", "°", -90, 90, 10, 1, UpdateLongitudeDecimal, enterEvent, noStyle)
-  , FIELD(longitudeDMSMinutes, "Lat Min", "'", 0, 59, 10, 1, UpdateLongitudeDecimal, enterEvent, noStyle)
-  , FIELD(longitudeDMSSeconds, "Lat Sec", "\"", 0, 59, 10, 0.1, UpdateLongitudeDecimal, enterEvent, noStyle)
+  , FIELD(longitudeDMSDegrees, "Lat Deg", "°", -90, 90, 10, 1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
+  , FIELD(longitudeDMSMinutes, "Lat Min", "'", 0, 59, 10, 1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
+  , FIELD(longitudeDMSSeconds, "Lat Sec", "\"", 0, 59, 10, 0.1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
   , EXIT("<Back")
 );
 
@@ -491,8 +524,13 @@ void setup() {
     //pinMode(PIN_EXP2_CONFIRM, INPUT);
     //pinMode(PIN_EXP1_BACK, INPUT);
 
-    // Setup OLED Menu
+    //Setup i2c
     Wire.begin(OLED_SDA, OLED_SCL);
+
+    // Setup i2c DS3231 module
+    rtcDS3231.begin();
+
+    // Setup OLED Menu
     #if DISPLAY_OUTPUT == SSD1306
       oled.begin(&Adafruit128x64, OLED_I2C_ADDRESS); //check config
       oled.setFont(menuFont);
@@ -530,8 +568,12 @@ void setup() {
     stepperAz.setMaxSpeed(2500);
     stepperAz.setAcceleration(1000);
 
-    // Set Time in UTC, not local time. Todo, use an I2C RTC module
-    rtc.setTime(0, 5, 17, 14, 6, 2026);
+    // Optional, set current date and time to compile time. This does not set UTC time, however...
+    //rtcDS3231.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
+    // Set ESP32Time from I2C RTC module
+    DateTime now = rtcDS3231.now();
+    rtcESP32Time.setTime(now.second(), now.minute(), now.hour(), now.day(), now.month(), now.year());
 
     // Load preferences from "eeprom" (flash memory on ESP32) into global variables
     LoadPreferencesIntoMemory();
@@ -541,7 +583,7 @@ void setup() {
     latitudeDMSDegrees = latitudeDMS.degrees;
     latitudeDMSMinutes = latitudeDMS.minutes;
     latitudeDMSSeconds = latitudeDMS.seconds;
-    
+
     structDegreesMinutesSeconds longitudeDMS = decimalDegreesToDMS(longitudeDecimal);
     latitudeDMSDegrees = longitudeDMS.degrees;
     latitudeDMSMinutes = longitudeDMS.minutes;
@@ -580,7 +622,7 @@ void loop() {
       steppersHaltMovement();
     }
   }
-  
+
   // Move stepper motors if we are homed, a move has been requested and it is safe to do so
   if (hasHomePositionAz && moveSteppersToTargetStepsAz) { //We could also check for (stepperAlt.distanceToGo() != 0 || stepperAz.distanceToGo() != 0) but apparently this is handled automatically by accelstepper
     stepperAz.moveTo(stepperAzTargetSteps);
