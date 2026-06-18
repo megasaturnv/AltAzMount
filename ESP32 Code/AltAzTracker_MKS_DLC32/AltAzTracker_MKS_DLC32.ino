@@ -216,6 +216,12 @@ result menuEvent_updateLongitudeDecimal(eventMask e) {
   return proceed;
 }
 
+result op_setLatLong(eventMask e) {
+  altAzPreferences.setLatitude(latitudeDecimal);
+  altAzPreferences.setLongitude(longitudeDecimal);
+  return quit;
+}
+
 result showEvent(eventMask e, navNode& nav, prompt &item) {
   return proceed;
 }
@@ -304,7 +310,7 @@ result op_stopTracking(eventMask e) {
 // # Menu items
 MENU(subMenu_SetDateAndTime, "Set UTC Date And Time", menuEvent_updateNewDateAndTimeVariable, enterEvent, noStyle
   , FIELD(setNewDateAndTime.tm_year,"Year","", 2000, 2100, 10, 1, doNothing, noEvent, noStyle)
-  , FIELD(setNewDateAndTime.tm_mon,"Month","", 0, 11, 10, 1, doNothing, noEvent, noStyle) //todo, use intermediate month variable, then set that -1 to value of tm_mon
+  , FIELD(setNewDateAndTime.tm_mon,"Month","", 1, 12, 10, 1, doNothing, noEvent, noStyle) //todo, use intermediate month variable which is tm_mon + 1
   , FIELD(setNewDateAndTime.tm_mday,"Day","", 1, 31, 10, 1, doNothing, noEvent, noStyle)
   , FIELD(setNewDateAndTime.tm_hour,"Hour","", 0, 23, 10, 1, doNothing, noEvent, noStyle)
   , FIELD(setNewDateAndTime.tm_min,"Minute","", 0, 59, 10, 1, doNothing, noEvent, noStyle)
@@ -334,6 +340,7 @@ MENU(subMenu_SetLongitude, "Set Longitude", doNothing, noEvent, noStyle
 MENU(subMenu_SetLocation, "Set Location", doNothing, noEvent, noStyle
   , SUBMENU(subMenu_SetLatitude)
   , SUBMENU(subMenu_SetLongitude)
+  , OP("Save new LatLong", op_setLatLong, enterEvent)
   , EXIT("<Back")
 );
 
@@ -347,10 +354,10 @@ CHOOSE(azPosHomeAs, choose_azPosHomeAs, "Set Az Pos Home as", doNothing, noEvent
 MENU(subMenu_Movement, "Movement", doNothing, noEvent, noStyle
   , OP("Disable Steppers", op_disableSteppers, enterEvent)
   , OP("Perform Alt Home", op_performAltHome, enterEvent)
-  , FIELD(angleOffsetAlt, "Alt Offset", "°", -45, 45, 1, 10, doNothing, noEvent, noStyle)
+  , FIELD(angleOffsetAlt, "Alt Offset", "°", -45, 45, 1, 0.1, doNothing, noEvent, noStyle)
   , OP("Perform Az Home", op_performAzHome, enterEvent)
   , SUBMENU(choose_azPosHomeAs)
-  , FIELD(angleOffsetAz, "Az Offset", "°", -45, 45, 1, 10, doNothing, noEvent, noStyle)
+  , FIELD(angleOffsetAz, "Az Offset", "°", -45, 45, 1, 0.1, doNothing, noEvent, noStyle)
   , OP("Begin Tracking", op_beginTracking, enterEvent)
   , OP("Stop Tracking", op_stopTracking, enterEvent)
   , EXIT("<Back")
