@@ -331,9 +331,9 @@ MENU(subMenu_SetLatitude, "Set Latitude", doNothing, noEvent, noStyle
 MENU(subMenu_SetLongitude, "Set Longitude", doNothing, noEvent, noStyle
   //, FIELD(longitudeDecimal,"Long","°", -90.0, 90.0, 10, 0.1, menuEvent_updateLongitudeDMS, enterEvent, noStyle)
   , FIELD(longitudeDecimal,"Long","°", -90.0, 90.0, 10, 0.1, doNothing, noEvent, noStyle)
-  , FIELD(longitudeDMSDegrees, "Lat Deg", "°", -90, 90, 10, 1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
-  , FIELD(longitudeDMSMinutes, "Lat Min", "'", 0, 59, 10, 1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
-  , FIELD(longitudeDMSSeconds, "Lat Sec", "\"", 0, 59, 10, 0.1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
+  , FIELD(longitudeDMSDegrees, "Long Deg", "°", -90, 90, 10, 1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
+  , FIELD(longitudeDMSMinutes, "Long Min", "'", 0, 59, 10, 1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
+  , FIELD(longitudeDMSSeconds, "Long Sec", "\"", 0, 59, 10, 0.1, menuEvent_updateLongitudeDecimal, enterEvent, noStyle)
   , EXIT("<Back")
 );
 
@@ -589,12 +589,12 @@ void setup() {
     structDegreesMinutesSeconds latitudeDMS = decimalDegreesToDMS(latitudeDecimal);
     latitudeDMSDegrees = latitudeDMS.degrees;
     latitudeDMSMinutes = latitudeDMS.minutes;
-    latitudeDMSSeconds = latitudeDMS.seconds;
+    latitudeDMSSeconds = latitudeDMS.seconds; //Todo. Check decimalDegreesToDMS function as it appears to be able to produce seconds = 60.0
 
     structDegreesMinutesSeconds longitudeDMS = decimalDegreesToDMS(longitudeDecimal);
-    latitudeDMSDegrees = longitudeDMS.degrees;
-    latitudeDMSMinutes = longitudeDMS.minutes;
-    latitudeDMSSeconds = longitudeDMS.seconds;
+    longitudeDMSDegrees = longitudeDMS.degrees;
+    longitudeDMSMinutes = longitudeDMS.minutes;
+    longitudeDMSSeconds = longitudeDMS.seconds; //Todo. Check decimalDegreesToDMS function as it appears to be able to produce seconds = 60.0
 
     // Final tasks
     srWriteBitbang(0); // Clear shift register
