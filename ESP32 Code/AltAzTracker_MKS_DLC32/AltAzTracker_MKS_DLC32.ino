@@ -200,7 +200,7 @@ result menuEvent_updateNewDateAndTimeVariable(eventMask e) {
   setNewDateAndTime.tm_year = rtcESP32Time.getYear();
   setNewDateAndTime.tm_mon = rtcESP32Time.getMonth();
   setNewDateAndTime.tm_mday = rtcESP32Time.getDay();
-  setNewDateAndTime.tm_hour = rtcESP32Time.getHour();
+  setNewDateAndTime.tm_hour = rtcESP32Time.getHour(true);
   setNewDateAndTime.tm_min = rtcESP32Time.getMinute();
   setNewDateAndTime.tm_sec = rtcESP32Time.getSecond();
   return proceed;
