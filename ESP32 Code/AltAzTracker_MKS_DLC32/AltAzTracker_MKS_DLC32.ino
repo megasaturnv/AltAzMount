@@ -31,13 +31,15 @@
 
 #include <menu.h>
 #include <menuIO/keyIn.h>
-#include <menuIO/encoderIn.h>
 #include <menuIO/chainStream.h>
 #if DISPLAY_OUTPUT == SSD1306
   #include <menuIO/SSD1306AsciiOut.h>
 #elif DISPLAY_OUTPUT == SH1106
   #include <menuIO/u8g2Out.h>
 #endif
+
+#include <ClickEncoder.h> // Using this library: https://github.com/soligen2010/encoder
+#include <menuIO/clickEncoderIn.h>
 
 using namespace Menu; //Copied from example code. Alternative is to use Menu::x
 
@@ -425,12 +427,15 @@ MENU(mainMenu, "Main menu", doNothing, noEvent, noStyle
 // # Menu inputs and output #
 // ##########################
 //input section
-//Currently uses https://github.com/neu-rah/PCINT, but this has issues with an ESP32. Todo, replace with another library such as https://github.com/soligen2010/encoder, based on https://github.com/neu-rah/ArduinoMenu/blob/master/examples/ESP32/ClickEncoderTFT/ClickEncoderTFT.ino
-//encoderIn<PIN_EXP2_TRA, PIN_EXP2_TRB> encoder; // simple quad encoder driver. Todo: Investigate "the value of 'PIN_EXP2_TRA' is not usable in a constant expression"
-const int PIN_EXP2_TRA_ = 23; //todo: Remove manual define here
-const int PIN_EXP2_TRB_ = 19;
-encoderIn<PIN_EXP2_TRA_, PIN_EXP2_TRB_> encoder; // simple quad encoder driver. Todo: Investigate "the value of 'PIN_EXP2_TRA' is not usable in a constant expression"
-encoderInStream<PIN_EXP2_TRA_, PIN_EXP2_TRB_> encStream(encoder, ENCODER_SENSITIVITY); // simple quad encoder fake Stream
+// Declare the clickencoder
+ClickEncoder clickEncoder = ClickEncoder(PIN_EXP2_TRA, PIN_EXP2_TRB, -1, ENCODER_SENSITIVITY); // -1 means don't pass through an input button here. That will be handled by joystickBtn_map later
+ClickEncoderStream encStream(clickEncoder, 1); // Number means number of rotary steps to move menu, after sensitivity has been set properly. 1 step = move menu by 1
+
+// Start the ESP32 timer to read the clickEncoder every 1 ms
+//void IRAM_ATTR onTimer() { // ESP32 core 2.x
+void ARDUINO_ISR_ATTR onTimer() { // ESP32 core 3.x
+  clickEncoder.service();
+}
 
 // Build a map of keys to menu commands
 // Negative pin numbers use internal pull-up, this is on when low
@@ -441,22 +446,17 @@ keyMap joystickBtn_map[] = {
 keyIn<TOTAL_NAV_BUTTONS> joystickBtns(joystickBtn_map); // The input driver
 
 // Input from the encoder + joystick buttons
-menuIn* inputsList[] = {&encStream,&joystickBtns}; //Can MEMMODE be used?
-chainStream<2> in(inputsList); //2 is the number of inputs
+MENU_INPUTS(in, &encStream, &joystickBtns); //Macro shortcut
 
-//MENU_INPUTS(in2, &encStream, &joystickBtns); //Macro shortcut. Never tested
+// Output section
+// Define at least one panel for menu output
+#if DISPLAY_OUTPUT == SSD1306
+  //const panel panels[] MEMMODE = {  { &mainMenu, 0, 1, 128 / fontW, (64 / fontH)-1} }; //Start at row 1 to leave the top row available for messages. Total rows is therefore -1 to not go off-screen
+  const panel panels[] MEMMODE = {  {0, 1, 128 / fontW, (64 / fontH)-1} }; //Start at row 1 to leave the top row available for messages. Total rows is therefore -1 to not go off-screen
+#elif DISPLAY_OUTPUT == SH1106
+  const panel panels[] MEMMODE = { {0, 1, 132 / fontW, (64 / fontH)-1} }; //Start at row 1 to leave the top row available for messages. Total rows is therefore -1 to not go off-screen
+#endif
 
-//Rotary isn't very reliable. Todo: look into using other/better libraries and toggle with #define vars
-//https://github.com/neu-rah/ArduinoMenu/issues/259
-//https://github.com/neu-rah/ArduinoMenu/issues/210
-//https://github.com/neu-rah/ArduinoMenu/issues/359
-//https://github.com/neu-rah/ArduinoMenu/issues/269
-
-
-//output section
-//define at least one panel for menu output
-const panel panels[] MEMMODE = { {0, 1, 132 / fontW, (64 / fontH)-1} }; //Start at row 1 to leave the top row available for messages. Total rows is therefore -1 to not go off-screen
-//const panel panels[] MEMMODE = {  { &mainMenu, 0, 1, 128 / fontW, (64 / fontH)-1} };
 navNode* nodes[sizeof(panels) / sizeof(panel)]; // navNodes to store navigation status
 panelsList pList(panels, nodes, 1); // A list of panels and nodes
 idx_t tops[MAX_DEPTH] = {0, 0}; // Store cursor positions for each level
@@ -503,6 +503,19 @@ NAVROOT(nav, mainMenu, MAX_DEPTH, in, out);
 
 
 
+
+
+// Create ESP32 timer
+// http://www.iotsharing.com/2017/06/how-to-use-interrupt-timer-in-arduino-esp32.html https://techtutorialsx.com/2017/10/07/esp32-arduino-timer-interrupts/
+hw_timer_t *timer = NULL;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+
+
+
+
+
+
+
 // ##############
 // # Main setup #
 // ##############
@@ -513,7 +526,26 @@ void setup() {
 
     // Begin button end rotary encoder inputs
     joystickBtns.begin();
-    encoder.begin(); //Only needed for menu's builtin encoder lib
+    //encoder.begin(); //Only needed for menu's builtin encoder lib
+    clickEncoder.setAccelerationEnabled(true);
+    clickEncoder.setDoubleClickEnabled(false); // Disable doubleclicks makes the response faster.  See: https://github.com/soligen2010/encoder/issues/6
+
+    // ESP32 timer
+    //timer = timerBegin(0, 80, true); //ESP32 core 2.x. Prescaler 80 means 80MHz/80 = 1MHz ticks
+    // Initialize timer with frequency in Hz. This makes each "tick" 1,000,000 times per second
+    timer = timerBegin(1000000); //ESP32 core 3.x
+
+    //timerAttachInterrupt(timer, &onTimer, true); //ESP32 core 2.x
+    // Attach the ISR function to the timer
+    timerAttachInterrupt(timer, &onTimer); //ESP32 core 3.x
+
+    //timerAlarmWrite(timer, 1000, true); //ESP32 core 2.x
+    //timerAlarmEnable(timer); //ESP32 core 2.x
+
+    // Set alarm to trigger every 1000 ticks (1ms)
+    // Params: (timer, alarm_value, autoreload, reload_count)
+    // Setting reload_count to 0 means it repeats indefinitely.
+    timerAlarm(timer, 1000, true, 0); //ESP32 core 3.x. 1000 means this activates 1000000/1000 = 1000 times per second
 
     // Setup pin modes
     pinMode(PIN_I2S_DATA, OUTPUT);

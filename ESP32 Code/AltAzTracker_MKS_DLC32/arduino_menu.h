@@ -49,10 +49,9 @@
 
 #define TOTAL_NAV_BUTTONS 2       // Total Navigation Button used
 
-//#define ENCODER_SENSITIVITY 8
-#define ENCODER_SENSITIVITY 16
+#define ENCODER_SENSITIVITY 4
 
-#define MAX_DEPTH 3
+#define MAX_DEPTH 4
 
 #ifdef LOC
 // #define LARGE_FONT
