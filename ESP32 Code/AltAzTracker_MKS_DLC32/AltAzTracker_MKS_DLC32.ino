@@ -183,7 +183,7 @@ result idle(menuOut &o, idleEvent e) {
   switch (e) {//FIELD Parameters: var.name, title, units, min., max., step size, fine step size, action, events mask, styles
     case idleStart:
       o.println("suspending menu!");
-      steppersEnable(false);
+      //steppersEnable(false);
       break;
     case idling:
       //o.println("suspended...");
