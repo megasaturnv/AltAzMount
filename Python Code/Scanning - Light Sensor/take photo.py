@@ -39,8 +39,8 @@ import sys
 # Configuration
 # =========================
 
-#SERIAL_PORT = "/dev/ttyUSB0"
-SERIAL_PORT = "/dev/pts/6"
+SERIAL_PORT = "/dev/ttyUSB0"
+#=#SERIAL_PORT = "/dev/pts/6" #Can be used for MITM testing
 BAUD_RATE = 9600
 
 POLL_INTERVAL = 0.2
