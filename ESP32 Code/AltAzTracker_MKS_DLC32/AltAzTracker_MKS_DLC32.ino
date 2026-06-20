@@ -569,6 +569,12 @@ void setup() {
     // Setup i2c DS3231 module
     rtcDS3231.begin();
 
+    // Setup BH1750 light sensor
+    lightMeter.begin();
+    delay(100);
+    //lightMeter.setMTreg(69);  // Default value. Can set range from 31 to 254. Use higher MTReg in low-light situations. Use low MTReg for bright areas
+    lightMeter.setMTreg(254);
+
     // Setup OLED Menu
     #if DISPLAY_OUTPUT == SSD1306
       oled.begin(&Adafruit128x64, OLED_I2C_ADDRESS); //check config

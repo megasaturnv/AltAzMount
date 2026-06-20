@@ -17,6 +17,7 @@
 #include "settings.h"
 #include "class_AltAzPreferences.h"
 
+#include <BH1750.h>
 
 // ####################
 // # Global Variables #
@@ -31,6 +32,8 @@
 
 extern RTC_DS3231 rtcDS3231;
 extern ESP32Time rtcESP32Time;
+
+extern BH1750 lightMeter;
 
 extern class_AltAzPreferences altAzPreferences;
 

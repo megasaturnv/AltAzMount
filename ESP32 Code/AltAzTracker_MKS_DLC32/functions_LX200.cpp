@@ -138,11 +138,13 @@ void serialParseData() {
 
     } else if (strncmp(serialReceivedChars, "Gl", 20) == 0) {
         // Custom response, get light level from LDR
+        float lux = lightMeter.readLightLevel();
+        //int luxMappedInt = round(map(lux, 0, 65535, 0, 255));
+        int luxMappedInt = round(map(lux,0 ,4, 0, 255));
 
-        int randomValue = random(0, 256);
-        if (randomValue < 100) Serial.print('0');
-        if (randomValue < 10)  Serial.print('0');
-        Serial.print(randomValue);
+        if (luxMappedInt < 100) Serial.print("0");
+        if (luxMappedInt < 10)  Serial.print("0");
+        Serial.print(luxMappedInt);
         Serial.print("#");
 
     } else if (strncmp(serialReceivedChars, "GA", 20) == 0) {

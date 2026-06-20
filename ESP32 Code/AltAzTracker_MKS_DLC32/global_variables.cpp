@@ -17,6 +17,8 @@
 RTC_DS3231 rtcDS3231;
 ESP32Time rtcESP32Time;
 
+BH1750 lightMeter;
+
 class_AltAzPreferences altAzPreferences;
 
 // Shift register state byte
