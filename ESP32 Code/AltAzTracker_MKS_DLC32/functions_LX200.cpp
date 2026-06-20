@@ -258,7 +258,7 @@ void serialParseData() {
         // 1 – Fault
         // LX200 – Not supported
         bool moveSuccessful = false;
-        moveSuccessful = (LX200TargetAlt, LX200TargetAz);
+        moveSuccessful = positionSetTargetAltAz(LX200TargetAlt, LX200TargetAz);
 
         if (moveSuccessful) { // We could print !moveSucessful directly, but this has more control
             Serial.print("0"); //Todo, implement returning 1 if object below horizon. Manual also says return 2 if "Object Below Higher", whatever that means...
