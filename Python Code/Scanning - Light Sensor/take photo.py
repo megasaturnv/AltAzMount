@@ -46,7 +46,7 @@ BAUD_RATE = 9600
 POLL_INTERVAL = 0.2
 MOVE_TIMEOUT = 30.0
 HOME_TIMEOUT = 30.0
-SETTLING_TIME = 0.5
+SETTLING_TIME = 0.2
 MAX_RETRIES = 3
 
 SERIAL_TIMEOUT = 1.0
@@ -153,7 +153,7 @@ class LX200Mount:
 
         self.flush()
 
-        self.send(":GZ#") # Send ONE GA request
+        self.send(":GZ#") # Send ONE GZ request
 
         while True: # Wait until we actually receive a byte
             if (time.time() - start_time) > HOME_TIMEOUT:
@@ -220,7 +220,6 @@ class LX200Mount:
                 break # Got a byte, stop waiting
 
             if response == b"#": # '#' = still moving
-                time.sleep(POLL_INTERVAL)
                 continue
 
             if response == b"\x00": # NULL = movement complete
