@@ -292,9 +292,24 @@ result menuEvent_azPosHomeAs(eventMask e) {
   return proceed;
 }
 
+const char* const celestialObjects[] = {
+    "Sun",
+    "Moon",
+//    "Mercury",
+//    "Venus",
+//    "Mars",
+//    "Jupiter",
+//    "Saturn",
+//    "Uranus",
+//    "Neptune"
+};
+
+const int objectCount = sizeof(celestialObjects) / sizeof(celestialObjects[0]);
+int selectedObject = 0;
+
 result op_setTargetToObject(eventMask e) {
-  setTargetToObject("Sun");
-  return proceed;
+    setTargetToObject(celestialObjects[selectedObject]);
+    return proceed;
 }
 
 result op_beginTracking(eventMask e) {
@@ -365,11 +380,23 @@ MENU(subMenu_Movement, "Movement", doNothing, noEvent, noStyle
   , EXIT("<Back")
 );
 
+CHOOSE(selectedObject, subMenu_choose_PointAtObject, "Object:", doNothing, noEvent, noStyle
+    , VALUE("Sun",      0, doNothing, noEvent)
+    , VALUE("Moon",     1, doNothing, noEvent)
+//    , VALUE("Mercury",  2, doNothing, noEvent)
+//    , VALUE("Venus",    3, doNothing, noEvent)
+//    , VALUE("Mars",     4, doNothing, noEvent)
+//    , VALUE("Jupiter",  5, doNothing, noEvent)
+//    , VALUE("Saturn",   6, doNothing, noEvent)
+//    , VALUE("Uranus",   7, doNothing, noEvent)
+//    , VALUE("Neptune",  8, doNothing, noEvent)
+);
+
 MENU(subMenu_PointAtObject, "Point at object", doNothing, noEvent, noStyle
-  , OP("Sun", op_setTargetToObject, enterEvent)
-  , OP("Moon", op_setTargetToObject, enterEvent)
-  , OP("Begin Tracking", op_beginTracking, enterEvent)
-  , OP("Stop Tracking", op_stopTracking, enterEvent)
+  , SUBMENU(subMenu_choose_PointAtObject)
+  , OP("Set target to object above", op_setTargetToObject, enterEvent)
+  , OP("Begin Tracking target", op_beginTracking, enterEvent)
+  , OP("Stop Tracking target ", op_stopTracking, enterEvent)
   , EXIT("<Back")
 );
 
