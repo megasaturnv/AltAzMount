@@ -36,6 +36,8 @@ void class_AltAzPreferences::factoryReset() {
     //setDeviceName("ESP32-Default-Factory");
     setLatitude(defaultPreference_latitude);
     setLongitude(defaultPreference_longitude);
+    setWifiSsid(defaultPreference_wifiSsid);
+    setWifiPassword(defaultPreference_wifiPassword);
 
     // Optional: Log the event
     OLED_print("Defaults restored", INFO);
@@ -79,4 +81,55 @@ void class_AltAzPreferences::setLongitude(double value) {
             end();
         }
     }
+}
+
+//Get and set wifi ssid functions
+char* class_AltAzPreferences::getWifiSsid() {
+  static char value[33]; //WIFI_SSID_MAX_LENGTH
+  value[0] = '\0';
+  if (begin(true)) { // Open in Read-Only mode to protect flash from accidental writes
+    preferences.getString("wifiSsid", value, sizeof(value));
+
+    if (value[0] == '\0') { // If the key wasn't found and returned empty, use default value
+      strncpy(value, defaultPreference_wifiSsid, sizeof(value));
+    }
+    end();
+  }
+  return value;
+}
+
+void class_AltAzPreferences::setWifiSsid(const char* value) {
+  // Only write if the value is different from what is already stored
+  //if (strcmp(getWifiSsid(), value) != 0) {
+    if (begin(false)) {
+      preferences.putString("wifiSsid", value);
+      end();
+    }
+  //}
+}
+
+//Get and set wifi password functions
+char* class_AltAzPreferences::getWifiPassword() {
+  static char value[65]; //WIFI_PASSWORD_MAX_LENGTH
+  value[0] = '\0';
+
+  if (begin(true)) { // Open in Read-Only mode to protect flash from accidental writes
+    preferences.getString("wifiPassword", value, sizeof(value));
+
+    if (value[0] == '\0') { // If the key wasn't found and returned empty, use default value
+      strncpy(value, defaultPreference_wifiPassword, sizeof(value));
+    }
+    end();
+  }
+  return value;
+}
+
+void class_AltAzPreferences::setWifiPassword(const char* value) {
+  // Only write if the value is different from what is already stored
+  //if (strcmp(getWifiPassword(), value) != 0) {
+    if (begin(false)) {
+      preferences.putString("wifiPassword", value);
+      end();
+    }
+  //}
 }

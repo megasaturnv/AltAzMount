@@ -7,7 +7,16 @@
 const int SERIAL_BAUD_RATE   = 9600; //Standard baud rate for LX200 protocol is 9600, 8N1 configuration
 const int SERIAL_BUFFER_SIZE = 32;
 
-const double defaultPreference_latitude  = 51.447;
+const int WIFI_SSID_MAX_LENGTH     = 33;
+const int WIFI_PASSWORD_MAX_LENGTH = 65;
+
+const char hostname[] = "MKS-DLC32";
+const unsigned long WIFI_TIMEOUT_MS = 10000; // 10 seconds
+
+const char defaultPreference_wifiSsid[] = "WiFiSSID";
+const char defaultPreference_wifiPassword[] = "WiFiPassword";
+
+const double defaultPreference_latitude= 51.447;
 const double defaultPreference_longitude = 0.0;
 
 const uint8_t serialNumChars                    = 32;

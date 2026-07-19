@@ -29,6 +29,9 @@ struct tm setNewDateAndTime;
 // OLED print debug level
 debugLevel setting_OledPrintDebugLevel = WARNING; //INFO will print INFO, WARNING AND ERROR. WARN will print WARNING, ERROR. ERROR will print only ERRORs
 
+char wifiSsid[33]; //WIFI_SSID_MAX_LENGTH
+char wifiPassword[65]; //WIFI_PASSWORD_MAX_LENGTH
+
 double latitudeDecimal = 0;
 int latitudeDMSDegrees = 0;
 int latitudeDMSMinutes = 0;

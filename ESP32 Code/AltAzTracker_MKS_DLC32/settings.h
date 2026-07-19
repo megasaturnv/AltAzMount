@@ -11,9 +11,6 @@
 //todo, constexpr better?
 
 // Defines are fine if the value is only referenced once. Else, it is more efficient to use const
-extern const int SERIAL_BAUD_RATE;
-extern const int SERIAL_BUFFER_SIZE;
-
 // Display type IDs. No need to modify these, only used for logic
 #define SSD1306 1
 #define SH1106  2
@@ -24,6 +21,18 @@ extern const int SERIAL_BUFFER_SIZE;
 // ##################
 // # Const settings #
 // ##################
+extern const int SERIAL_BAUD_RATE;
+extern const int SERIAL_BUFFER_SIZE;
+
+extern const int  WIFI_SSID_MAX_LENGTH;
+extern const int  WIFI_PASSWORD_MAX_LENGTH;
+
+extern const char hostname[];
+extern const unsigned long WIFI_TIMEOUT_MS;
+
+extern const char defaultPreference_wifiSsid[];
+extern const char defaultPreference_wifiPassword[];
+
 extern const double defaultPreference_latitude;
 extern const double defaultPreference_longitude;
 

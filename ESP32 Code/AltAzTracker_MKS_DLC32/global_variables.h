@@ -45,6 +45,9 @@ enum debugLevel { INFO, WARNING, ERROR };
 
 extern debugLevel setting_OledPrintDebugLevel;
 
+extern char wifiSsid[33]; //WIFI_SSID_MAX_LENGTH
+extern char wifiPassword[65]; //WIFI_PASSWORD_MAX_LENGTH
+
 extern double latitudeDecimal;
 extern int latitudeDMSDegrees;
 extern int latitudeDMSMinutes;

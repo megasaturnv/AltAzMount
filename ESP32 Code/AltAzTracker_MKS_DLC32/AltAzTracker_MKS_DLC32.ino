@@ -13,6 +13,10 @@
 // # Includes #
 // ############
 #include <Arduino.h>
+#include <WiFi.h>
+#include <ArduinoOTA.h>
+#include <esp_bt.h>
+
 
 //#include <stdint.h>
 //#include <stdlib.h>
@@ -156,6 +160,14 @@ using namespace Menu; //Copied from example code. Alternative is to use Menu::x
 // ##################
 // # Menu Structure #
 // ##################
+char alphaNumericCharacters[] MEMMODE = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+char* constMEM alphaNumericCharactersValidator[] MEMMODE = {
+  alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters,
+  alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters,
+  alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters,
+  alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters, alphaNumericCharacters
+};
+
 //#include "arduino_menu_structure.h"
 // https://github.com/neu-rah/ArduinoMenu/wiki/Menu-definition
 //FIELD Parameters: var.name, title, units, min., max., step size, fine step size, action, events mask, styles
@@ -221,6 +233,12 @@ result menuEvent_updateLongitudeDecimal(eventMask e) {
 result op_setLatLong(eventMask e) {
   altAzPreferences.setLatitude(latitudeDecimal);
   altAzPreferences.setLongitude(longitudeDecimal);
+  return quit;
+}
+
+result op_setWifi(eventMask e) {
+  altAzPreferences.setWifiSsid(wifiSsid);
+  altAzPreferences.setWifiPassword(wifiPassword);
   return quit;
 }
 
@@ -361,6 +379,13 @@ MENU(subMenu_SetLocation, "Set Location", doNothing, noEvent, noStyle
   , EXIT("<Back")
 );
 
+MENU(subMenu_SetWifi, "Set WiFi", doNothing, noEvent, noStyle
+  , EDIT("SSID", wifiSsid, alphaNumericCharactersValidator, doNothing, noEvent, noStyle)
+  , EDIT("Pwd", wifiPassword, alphaNumericCharactersValidator, doNothing, noEvent, noStyle)
+  , OP("Save new WiFi creds", op_setWifi, enterEvent)
+  , EXIT("<Back")
+);
+
 CHOOSE(azPosHomeAs, choose_azPosHomeAs, "Set Az Pos Home as", doNothing, noEvent, noStyle
   , VALUE("North here", 0, menuEvent_azPosHomeAs, enterEvent)
   , VALUE("East here", 90, menuEvent_azPosHomeAs, enterEvent)
@@ -434,10 +459,11 @@ CHOOSE(chooseTest, subMenu_chooseMenu, "Choose", doNothing, noEvent, noStyle
 );
 
 MENU(mainMenu, "Main menu", doNothing, noEvent, noStyle
-  , SUBMENU(subMenu_SetDateAndTime)
-  , SUBMENU(subMenu_SetLocation)
   , SUBMENU(subMenu_Movement)
   , SUBMENU(subMenu_PointAtObject)
+  , SUBMENU(subMenu_SetDateAndTime)
+  , SUBMENU(subMenu_SetLocation)
+  , SUBMENU(subMenu_SetWifi)
   , SUBMENU(toggle_tripodModeAltAz)
   , SUBMENU(subMenu_FactoryReset)
   , OP("OpAnyEvent Act1", action1, anyEvent)
@@ -642,6 +668,7 @@ void setup() {
     rtcESP32Time.setTime(now.second(), now.minute(), now.hour(), now.day(), now.month(), now.year());
 
     // Load preferences from "eeprom" (flash memory on ESP32) into global variables
+    // This includes latitude, longitude, wifi ssid and wifi password
     LoadPreferencesIntoMemory();
 
     //Update latitude and longitude hours, minutes and seconds variables from their decimal (double) in memory
@@ -654,6 +681,28 @@ void setup() {
     longitudeDMSDegrees = longitudeDMS.degrees;
     longitudeDMSMinutes = longitudeDMS.minutes;
     longitudeDMSSeconds = longitudeDMS.seconds; //Todo. Check decimalDegreesToDMS function as it appears to be able to produce seconds = 60.0
+
+    // Disable bluetooth to save power
+    btStop();
+
+    // Connect to WiFi for ArduinoOTA
+    WiFi.mode(WIFI_STA);
+    WiFi.setHostname(hostname);
+    WiFi.begin(wifiSsid, wifiPassword);
+    unsigned long startAttemptTime = millis();
+    while (WiFi.status() != WL_CONNECTED &&
+      millis() - startAttemptTime < WIFI_TIMEOUT_MS) {
+      delay(500);
+      Serial.print(".");
+    }
+    if (WiFi.status() == WL_CONNECTED) {
+      ArduinoOTA.setHostname(hostname);
+      ArduinoOTA.begin();
+    } else {
+      //We were unable to connect to an AP
+      WiFi.disconnect(false);  // Disconnect from any AP
+      WiFi.mode(WIFI_OFF);     // Turn off WiFi hardware
+    }
 
     // Final tasks
     srWriteBitbang(0); // Clear shift register
@@ -670,6 +719,11 @@ void setup() {
 void loop() {
   // Poll the menu for the ArduinoMenu library
   nav.poll();
+
+  // Required for ArduinoOTA
+  if (WiFi.status() == WL_CONNECTED) {
+    ArduinoOTA.handle();
+  }
 
   //Receive and parse serial data
   serialRecieveLX200();

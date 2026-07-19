@@ -27,6 +27,14 @@ public:
     //Get and set longitude functions
     double getLongitude();
     void setLongitude(double value);
+
+    //Get and set wifi ssid functions
+    char* getWifiSsid();
+    void setWifiSsid(const char* value);
+
+    //Get and set wifi password functions
+    char* getWifiPassword();
+    void setWifiPassword(const char* value);
 };
 
 #endif // CLASS_ALTAZPREFERENCES_H
