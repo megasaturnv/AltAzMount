@@ -67,5 +67,5 @@ void AccelStepper_ShiftRegister::step1(long step)
 }
 
 // Global instances
-AccelStepper_ShiftRegister stepperAlt(SR_Z_STEP_BIT, SR_Z_DIR_BIT);
-AccelStepper_ShiftRegister stepperAz(SR_X_STEP_BIT, SR_X_DIR_BIT);
+AccelStepper_ShiftRegister stepperAlt(SR_ALT_STEP_BIT, SR_ALT_DIR_BIT);
+AccelStepper_ShiftRegister stepperAz(SR_AZ_STEP_BIT, SR_AZ_DIR_BIT);

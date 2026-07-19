@@ -112,4 +112,16 @@ extern const int OLED_SCL;
 //LED Pin
 extern const int LED_PIN;
 
+
+
+//Pins assigned to Motors and limit switches
+extern const int SR_ALT_STEP_BIT;
+extern const int SR_ALT_DIR_BIT;
+extern const int SR_AZ_STEP_BIT;
+extern const int SR_AZ_DIR_BIT;
+extern const int PIN_ALT_LIMIT_HOME;
+extern const int PIN_ALT_LIMIT_END;
+extern const int PIN_AZ_LIMIT_HOME;
+extern const int PIN_AZ_LIMIT_END;
+
 #endif // FUNCTIONS_SETTINGS_H

@@ -95,3 +95,15 @@ const int OLED_SCL = 4;
 
 //LED Pin
 const int LED_PIN = 2;
+
+
+
+//Pins assigned to Motors and limit switches
+const int SR_ALT_STEP_BIT    = SR_Z_STEP_BIT;
+const int SR_ALT_DIR_BIT     = SR_Z_DIR_BIT;
+const int SR_AZ_STEP_BIT     = SR_X_STEP_BIT;
+const int SR_AZ_DIR_BIT      = SR_X_DIR_BIT;
+const int PIN_ALT_LIMIT_HOME = PIN_X_LIMIT;
+const int PIN_ALT_LIMIT_END  = PIN_Y_LIMIT;
+const int PIN_AZ_LIMIT_HOME  = PIN_Z_LIMIT;
+const int PIN_AZ_LIMIT_END   = PIN_Z_PROBE;

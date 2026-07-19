@@ -171,12 +171,12 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
 
 // Home the Altitude axis
 bool performAltHome() {
-    return stepperMotorHome(stepperAlt, PIN_X_LIMIT, PIN_Y_LIMIT, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION);
+    return stepperMotorHome(stepperAlt, PIN_ALT_LIMIT_HOME, PIN_ALT_LIMIT_END, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION);
 }
 
 // Home the Azimuth axis
 bool performAzHome() {
-    //return stepperMotorHome(stepperAz, PIN_Z_LIMIT, PIN_Z_PROBE, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
+    //return stepperMotorHome(stepperAz, PIN_AZ_LIMIT_HOME, PIN_AZ_LIMIT_END, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
     azStepperMotorSetCurrentPositionToAngle(180); //temp, wip
     return true;
 }
@@ -311,7 +311,7 @@ bool positionSetTargetAngleAltitude(float altAngle) {
     targetAngle = targetAngle + angleOffsetAlt; //Add the user's custom offset value
 
     //stepperMotorMoveToAngleFromHome() will check if the angle requested is save to move to
-    //return stepperMotorMoveToAngleFromHome(stepperAlt, PIN_X_LIMIT, PIN_Y_LIMIT, Z_STEPPER_MINIMUM_ANGLE, Z_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION);
+    //return stepperMotorMoveToAngleFromHome(stepperAlt, PIN_ALT_LIMIT_HOME, PIN_ALT_LIMIT_END, Z_STEPPER_MINIMUM_ANGLE, Z_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION);
 
     //Check if targetAngle is within allowed range
     if (fabs(targetAngle) < Z_STEPPER_MINIMUM_ANGLE) {
@@ -331,7 +331,7 @@ bool positionSetTargetAngleAzimuth(float azAngle) {
     targetAngle = targetAngle + angleOffsetAz; //Add the user's custom offset value
 
     //stepperMotorMoveToAngleFromHome() will check if the angle requested is save to move to
-    //return stepperMotorMoveToAngleFromHome(stepperAz, PIN_Z_LIMIT, PIN_Z_PROBE, X_STEPPER_MINIMUM_ANGLE, X_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
+    //return stepperMotorMoveToAngleFromHome(stepperAz, PIN_AZ_LIMIT_HOME, PIN_AZ_LIMIT_END, X_STEPPER_MINIMUM_ANGLE, X_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
 
     //Check if targetAngle is within allowed range
     if (fabs(targetAngle) < X_STEPPER_MINIMUM_ANGLE) {

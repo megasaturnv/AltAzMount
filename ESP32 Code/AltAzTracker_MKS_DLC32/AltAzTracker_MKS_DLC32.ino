@@ -734,7 +734,7 @@ void loop() {
   // Move stepper motors if we are homed, a move has been requested and it is safe to do so
   if (hasHomePositionAlt && moveSteppersToTargetStepsAlt) { //We could also check for (stepperAlt.distanceToGo() != 0 || stepperAz.distanceToGo() != 0) but apparently this is handled automatically by accelstepper
     stepperAlt.moveTo(stepperAltTargetSteps);
-    if (digitalRead(PIN_X_LIMIT) == HIGH && digitalRead(PIN_Y_LIMIT) == HIGH) {  
+    if (digitalRead(PIN_ALT_LIMIT_HOME) == HIGH && digitalRead(PIN_ALT_LIMIT_END) == HIGH) {
       stepperAlt.run();
     } else {
       //steppersDisableAndAbortAllCode();
@@ -746,7 +746,7 @@ void loop() {
   // Move stepper motors if we are homed, a move has been requested and it is safe to do so
   if (hasHomePositionAz && moveSteppersToTargetStepsAz) { //We could also check for (stepperAlt.distanceToGo() != 0 || stepperAz.distanceToGo() != 0) but apparently this is handled automatically by accelstepper
     stepperAz.moveTo(stepperAzTargetSteps);
-    if (digitalRead(PIN_Z_LIMIT) == HIGH && digitalRead(PIN_Z_PROBE) == HIGH) {  
+    if (digitalRead(PIN_AZ_LIMIT_HOME) == HIGH && digitalRead(PIN_AZ_LIMIT_END) == HIGH) {
       stepperAz.run();
     } else {
       //steppersDisableAndAbortAllCode();
