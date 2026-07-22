@@ -12,4 +12,8 @@ void LoadPreferencesIntoMemory() {
 
   strncpy(wifiSsid, altAzPreferences.getWifiSsid(), sizeof(wifiSsid) - 1);
   strncpy(wifiPassword, altAzPreferences.getWifiPassword(), sizeof(wifiPassword) - 1);
+  
+  // Manually ensure null-termination at the last index
+  wifiSsid[sizeof(wifiSsid) - 1] = '\0';
+  wifiPassword[sizeof(wifiPassword) - 1] = '\0';
 }

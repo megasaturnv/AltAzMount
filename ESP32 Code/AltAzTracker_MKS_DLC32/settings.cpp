@@ -16,7 +16,7 @@ const unsigned long WIFI_TIMEOUT_MS = 10000; // 10 seconds
 const char defaultPreference_wifiSsid[] = "WiFiSSID";
 const char defaultPreference_wifiPassword[] = "WiFiPassword";
 
-const double defaultPreference_latitude= 51.447;
+const double defaultPreference_latitude  = 51.447;
 const double defaultPreference_longitude = 0.0;
 
 const uint8_t serialNumChars                    = 32;

@@ -23,9 +23,6 @@ protected:
 
   // Override the low-level step pulse function from AccelStepper
   void step(long step) override;
-
-  // Override the low-level step pulse function from AccelStepper
-  void step1(long step) override;
 };
 
 // Optional: if instances should be globally available

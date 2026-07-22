@@ -8,8 +8,7 @@
 
 // Constructor: pass the bit positions for step and dir
 AccelStepper_ShiftRegister::AccelStepper_ShiftRegister ( uint8_t stepBit_,  uint8_t dirBit_)
-  : AccelStepper(AccelStepper::DRIVER, stepBit_, dirBit_), stepBit(stepBit_), dirBit(dirBit_) {}
-
+  : AccelStepper(AccelStepper::FUNCTION, stepBit_, dirBit_), stepBit(stepBit_), dirBit(dirBit_) {}
 /*
   //virtual void digitalWriteWrapper(uint8_t pin, uint8_t val) override {
   virtual void digitalWriteWrapper(uint8_t pin, uint8_t val) {
@@ -36,29 +35,6 @@ void AccelStepper_ShiftRegister::step(long step)
   srWriteBitbang(srState);
 
   // Respect minimum pulse width
-  // delayMicroseconds(minPulseWidth);
-
-  // STEP LOW
-  srState &= ~(1 << stepBit);
-  srWriteBitbang(srState);
-}
-
-// Override the low-level step pulse function from AccelStepper
-void AccelStepper_ShiftRegister::step1(long step)
-{
-  (void)step; // Unused
-
-  // Map _direction to DIR bit
-  if (_direction)
-    srState |= (1 << dirBit);
-  else
-    srState &= ~(1 << dirBit);
-
-  // Pulse STEP HIGH
-  srState |= (1 << stepBit);
-  srWriteBitbang(srState);
-
-  // Minimum pulse width
   delayMicroseconds(minPulseWidth);
 
   // STEP LOW
