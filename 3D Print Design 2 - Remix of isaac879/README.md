@@ -1,7 +1,9 @@
 #     3D Print Design 2 - Remix of isaac879
-### This is remixed from isaac879's design here:
+This is remixed from isaac879's design here:  
 <https://github.com/isaac879/Pan-Tilt-Mount>  
 <https://www.thingiverse.com/thing:4547074>  
+
+Google SketchUp version 8.0.14346 was used to modify the original design
 
 ### List of changes:
 * Added 18650s
