@@ -16,13 +16,13 @@ void steppersEnable(bool argEnable);
 void steppersDisableAndAbortAllCode();
 
 //Sets the current position of this stepper motor to be angle supplied. Does not move the stepper.
-bool stepperMotorSetCurrentPositionToAngle(AccelStepper &stepper, float argAngle, bool moveInPositiveDirection);
+bool stepperMotorSetCurrentPositionToAngle(AccelStepper &stepper, float argAngle, bool moveInPositiveDirection, double stepsPerRevolution);
 
 //Sets the current position of the az motor to be angle supplied. Does not move the stepper. Sets hasHomePositionAz to true if setting was successful
 void azStepperMotorSetCurrentPositionToAngle(float argAngle);
 
 //Home the stepper motor given
-bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, bool moveInPositiveDirection);
+bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, bool moveInPositiveDirection, double stepsPerRevolution);
 
 // Home the Altitude axis
 bool performAltHome();
@@ -33,10 +33,10 @@ bool performAzHome();
 // Perform home on each axis if needed
 void performHomeOnlyIfNeededAndSetHasHome();
 
-long convertAngleToTargetSteps(float targetAngle, bool moveInPositiveDirection);
+long convertAngleToTargetSteps(float targetAngle, bool moveInPositiveDirection, double stepsPerRevolution);
 
 // Moves stepper motor given to an angle. Returns true if successful, false if not
-bool stepperMotorMoveToAngleFromHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, float minimumAngle, float maximumAngle, float targetAngle, bool moveInPositiveDirection);
+bool stepperMotorMoveToAngleFromHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, float minimumAngle, float maximumAngle, float targetAngle, bool moveInPositiveDirection, double stepsPerRevolution);
 
 //Altered for float and double values. Originally from arduino source code
 //Args are: value, fromLow, fromHigh, toLow, toHigh
@@ -45,7 +45,7 @@ float mapFloat(float x, float in_min, float in_max, float out_min, float out_max
 double mapDouble(double x, double in_min, double in_max, double out_min, double out_max);
 
 //Get position of the stepper from home. Should always be positive
-double positionGetAngleFromHome(AccelStepper &stepper);
+double positionGetAngleFromHome(AccelStepper &stepper, double stepsPerRevolution);
 
 //Get angle of altitude. Is allowed to be negative, means currently pointing below horizon
 double positionGetAngleAlt();

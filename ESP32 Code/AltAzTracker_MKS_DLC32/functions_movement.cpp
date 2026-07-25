@@ -36,7 +36,7 @@ void steppersDisableAndAbortAllCode() {
 }
 
 //Sets the current position of this stepper motor to be angle supplied. Does not move the stepper.
-bool stepperMotorSetCurrentPositionToAngle(AccelStepper &stepper, float argAngle, bool moveInPositiveDirection) {
+bool stepperMotorSetCurrentPositionToAngle(AccelStepper &stepper, float argAngle, bool moveInPositiveDirection, double stepsPerRevolution) {
     int8_t movementDirectionMultiplier = 0;
     if (moveInPositiveDirection) {
         movementDirectionMultiplier = 1;
@@ -46,7 +46,7 @@ bool stepperMotorSetCurrentPositionToAngle(AccelStepper &stepper, float argAngle
 
     steppersEnable(true); //Hold stepper motor in place
 
-    long currentPositioninSteps = (STEPPER_STEPS_PER_REV / 360.0) * argAngle * movementDirectionMultiplier;
+    long currentPositioninSteps = (stepsPerRevolution / 360.0) * argAngle * movementDirectionMultiplier;
     stepper.setCurrentPosition(currentPositioninSteps);
 
     // Return true if the current position of the stepper motor now matches what we set it to
@@ -55,11 +55,11 @@ bool stepperMotorSetCurrentPositionToAngle(AccelStepper &stepper, float argAngle
 
 //Sets the current position of the az motor to be angle supplied. Does not move the stepper. Sets hasHomePositionAz to true if setting was successful
 void azStepperMotorSetCurrentPositionToAngle(float argAngle) {
-    hasHomePositionAz = stepperMotorSetCurrentPositionToAngle(stepperAz, argAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
+    hasHomePositionAz = stepperMotorSetCurrentPositionToAngle(stepperAz, argAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION, AZ_STEPPER_STEPS_PER_REV);
 }
 
 //Home the stepper motor given
-bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, bool moveInPositiveDirection) {
+bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, bool moveInPositiveDirection, double stepsPerRevolution) {
     int8_t movementDirectionMultiplier = 0;
     if (moveInPositiveDirection) {
         movementDirectionMultiplier = 1;
@@ -78,7 +78,7 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
         OLED_print("Home limit switch depressed, so we will attempt to move off it", INFO);
 
         //Move off home limit switch
-        long targetSteps = (STEPPER_STEPS_PER_REV / 360.0) * ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
+        long targetSteps = (stepsPerRevolution / 360.0) * ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
 
         stepper.moveTo(targetSteps);
         while (stepper.distanceToGo() != 0) {
@@ -97,7 +97,7 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
         OLED_print("End limit switch depressed, so we will attempt to move off it", INFO);
 
         //Move off end limit switch
-        long targetSteps = (STEPPER_STEPS_PER_REV / 360.0) * -ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
+        long targetSteps = (stepsPerRevolution / 360.0) * -ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
 
         stepper.moveTo(targetSteps);
         while (stepper.distanceToGo() != 0) {
@@ -112,7 +112,7 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
     }
 
     //Perform Fast Home
-    stepper.setSpeed(-2000 * movementDirectionMultiplier);
+    stepper.setSpeed(-1000 * movementDirectionMultiplier);
     while (digitalRead(homeLimitSwitchPin) == HIGH) {
         stepper.runSpeed();
         if (digitalRead(endLimitSwitchPin) == LOW) {
@@ -130,7 +130,7 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
         OLED_print("Home limit switch depressed, so we will attempt to move off it", INFO);
 
         //Move off home limit switch
-        long targetSteps = (STEPPER_STEPS_PER_REV / 360.0) * ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
+        long targetSteps = (stepsPerRevolution / 360.0) * ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
 
         stepper.moveTo(targetSteps);
         while (stepper.distanceToGo() != 0) {
@@ -145,7 +145,7 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
     }
 
     //Perform Slow Home
-    stepper.setSpeed(-250 * movementDirectionMultiplier);
+    stepper.setSpeed(-50 * movementDirectionMultiplier);
     while (digitalRead(homeLimitSwitchPin) == HIGH) {
         stepper.runSpeed();
         if (digitalRead(endLimitSwitchPin) == LOW) {
@@ -158,7 +158,7 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
     stepper.setCurrentPosition(0);
 
     //Move off home limit switch
-    long targetSteps = (STEPPER_STEPS_PER_REV / 360.0) * ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
+    long targetSteps = (stepsPerRevolution / 360.0) * ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH * movementDirectionMultiplier;
 
     stepper.moveTo(targetSteps);
     while (stepper.distanceToGo() != 0) {
@@ -171,12 +171,12 @@ bool stepperMotorHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t
 
 // Home the Altitude axis
 bool performAltHome() {
-    return stepperMotorHome(stepperAlt, PIN_ALT_LIMIT_HOME, PIN_ALT_LIMIT_END, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION);
+    return stepperMotorHome(stepperAlt, PIN_ALT_LIMIT_HOME, PIN_ALT_LIMIT_END, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION, ALT_STEPPER_STEPS_PER_REV);
 }
 
 // Home the Azimuth axis
 bool performAzHome() {
-    //return stepperMotorHome(stepperAz, PIN_AZ_LIMIT_HOME, PIN_AZ_LIMIT_END, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
+    //return stepperMotorHome(stepperAz, PIN_AZ_LIMIT_HOME, PIN_AZ_LIMIT_END, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION, ALT_STEPPER_STEPS_PER_REV);
     azStepperMotorSetCurrentPositionToAngle(180); //temp, wip
     return true;
 }
@@ -191,7 +191,7 @@ void performHomeOnlyIfNeededAndSetHasHome() {
     }
 }
 
-long convertAngleToTargetSteps(float targetAngle, bool moveInPositiveDirection) {
+long convertAngleToTargetSteps(float targetAngle, bool moveInPositiveDirection, double stepsPerRevolution) {
     int8_t movementDirectionMultiplier = 0;
     if (moveInPositiveDirection) {
         movementDirectionMultiplier = 1;
@@ -200,12 +200,12 @@ long convertAngleToTargetSteps(float targetAngle, bool moveInPositiveDirection) 
     }
 
     //Calculate the target steps from the angle
-    long targetSteps = (STEPPER_STEPS_PER_REV / 360.0) * targetAngle * movementDirectionMultiplier;
+    long targetSteps = (stepsPerRevolution / 360.0) * targetAngle * movementDirectionMultiplier;
     return targetSteps;
 }
 
 // Moves stepper motor given to an angle. Returns true if successful, false if not
-bool stepperMotorMoveToAngleFromHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, float minimumAngle, float maximumAngle, float targetAngle, bool moveInPositiveDirection) {
+bool stepperMotorMoveToAngleFromHome(AccelStepper &stepper, uint8_t homeLimitSwitchPin, uint8_t endLimitSwitchPin, float minimumAngle, float maximumAngle, float targetAngle, bool moveInPositiveDirection, double stepsPerRevolution) {
     int8_t movementDirectionMultiplier = 0;
     if (moveInPositiveDirection) {
         movementDirectionMultiplier = 1;
@@ -214,7 +214,7 @@ bool stepperMotorMoveToAngleFromHome(AccelStepper &stepper, uint8_t homeLimitSwi
     }
 
     //Calculate the target steps from the angle
-    long targetSteps = (STEPPER_STEPS_PER_REV / 360.0) * targetAngle * movementDirectionMultiplier;
+    long targetSteps = (stepsPerRevolution / 360.0) * targetAngle * movementDirectionMultiplier;
 
     //OLED_print("Moving to angle from home: " . targetAngle . "    Target Steps:" . targetSteps, INFO);
 
@@ -236,7 +236,7 @@ bool stepperMotorMoveToAngleFromHome(AccelStepper &stepper, uint8_t homeLimitSwi
 
     // Run with acceleration
     while (stepper.distanceToGo() != 0) {
-        currentAngle = (stepper.currentPosition() / STEPPER_STEPS_PER_REV) * 360.0; //We multiply by the bigger number first, then divide by 360
+        currentAngle = (stepper.currentPosition() / stepsPerRevolution) * 360.0; //We multiply by the bigger number first, then divide by 360
 
         if (fabs(currentAngle) - ANGLE_ALLOWED_WITHIN_LIMIT_SWITCH_BEING_DEPRESSED > minimumAngle && digitalRead(homeLimitSwitchPin) == LOW) {
             //OLED_print("The home switch was depressed while trying to move to angle that shouldn't hit that limit. currentAngle: " . currentAngle, WARNING);
@@ -261,14 +261,14 @@ double mapDouble(double x, double in_min, double in_max, double out_min, double 
 }
 
 //Get position of the stepper from home. Should always be positive
-double positionGetAngleFromHome(AccelStepper &stepper) {
-    float stepperAngle = fabs((stepper.currentPosition() / STEPPER_STEPS_PER_REV) * 360.0);
+double positionGetAngleFromHome(AccelStepper &stepper, double stepsPerRevolution) {
+    float stepperAngle = fabs((stepper.currentPosition() / stepsPerRevolution) * 360.0);
     return stepperAngle;
 }
 
 //Get angle of altitude. Is allowed to be negative, means currently pointing below horizon
 double positionGetAngleAlt() {
-    double altAngleFromHome = positionGetAngleFromHome(stepperAlt);
+    double altAngleFromHome = positionGetAngleFromHome(stepperAlt, ALT_STEPPER_STEPS_PER_REV);
     double altAngle = mapDouble(altAngleFromHome, Z_STEPPER_ANGLE_OF_HORIZON_FROM_HOME, Z_STEPPER_ANGLE_OF_ZENITH_FROM_HOME, 0.0, 90.0); //Convert the range of Z_STEPPER_ANGLE_OF_HORIZON_FROM_HOME - Z_STEPPER_ANGLE_OF_ZENITH_FROM_HOME from home to be 0-90 degrees altitude nominal, but allowed to be negative. Based on distance from home to the horizon. Zenith is used here, but in most cases it will always be Z_STEPPER_ANGLE_OF_HORIZON_FROM_HOME + 90
     altAngle = altAngle - angleOffsetAlt; //Take away the user's custom offset value
     return altAngle;
@@ -276,7 +276,7 @@ double positionGetAngleAlt() {
 
 //Get angle of azimuth
 double positionGetAngleAz() {
-    double azAngleFromHome = positionGetAngleFromHome(stepperAz);
+    double azAngleFromHome = positionGetAngleFromHome(stepperAz, AZ_STEPPER_STEPS_PER_REV);
     double azAngle = mapFloat(azAngleFromHome, X_STEPPER_ANGLE_OF_NORTH_FROM_HOME, X_STEPPER_ANGLE_OF_SOUTH_FROM_HOME, 0.0, 180.0); //Convert the range of X_STEPPER_ANGLE_OF_NORTH_FROM_HOME - X_STEPPER_ANGLE_OF_SOUTH_FROM_HOME from home to be 0-180 degrees azimuth nominal, but allowed to be negative. Based on distance from home to north. South is used here, but in most cases it will always be X_STEPPER_ANGLE_OF_NORTH_FROM_HOME + 180
     azAngle = azAngle - angleOffsetAz; //Take away the user's custom offset value
     return azAngle;
@@ -295,7 +295,7 @@ structDegreesMinutesSeconds positionGetDMSDec() {
 }
 
 bool positionSetTargetAngleAltitude(float altAngle) {
-    //WIP fir printing to OLED
+    //WIP for printing to OLED
     //snprintf (buff, sizeof(buff), "%f", val);
     //
     //val_int = (int) val;   // compute the integer part of the float
@@ -311,7 +311,7 @@ bool positionSetTargetAngleAltitude(float altAngle) {
     targetAngle = targetAngle + angleOffsetAlt; //Add the user's custom offset value
 
     //stepperMotorMoveToAngleFromHome() will check if the angle requested is save to move to
-    //return stepperMotorMoveToAngleFromHome(stepperAlt, PIN_ALT_LIMIT_HOME, PIN_ALT_LIMIT_END, Z_STEPPER_MINIMUM_ANGLE, Z_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION);
+    //return stepperMotorMoveToAngleFromHome(stepperAlt, PIN_ALT_LIMIT_HOME, PIN_ALT_LIMIT_END, Z_STEPPER_MINIMUM_ANGLE, Z_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION, ALT_STEPPER_STEPS_PER_REV);
 
     //Check if targetAngle is within allowed range
     if (fabs(targetAngle) < Z_STEPPER_MINIMUM_ANGLE) {
@@ -319,7 +319,7 @@ bool positionSetTargetAngleAltitude(float altAngle) {
     } else if (fabs(targetAngle) > Z_STEPPER_MAXIMUM_ANGLE) {
         OLED_print("Warning: Angle requested is greater than maximum angle", WARNING);
     } else {
-        stepperAltTargetSteps = convertAngleToTargetSteps(targetAngle, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION);
+        stepperAltTargetSteps = convertAngleToTargetSteps(targetAngle, STEPPER_ALT_MOVE_IN_POSITIVE_DIRECTION, ALT_STEPPER_STEPS_PER_REV);
         moveSteppersToTargetStepsAlt = true;
         return true;
     }
@@ -331,7 +331,7 @@ bool positionSetTargetAngleAzimuth(float azAngle) {
     targetAngle = targetAngle + angleOffsetAz; //Add the user's custom offset value
 
     //stepperMotorMoveToAngleFromHome() will check if the angle requested is save to move to
-    //return stepperMotorMoveToAngleFromHome(stepperAz, PIN_AZ_LIMIT_HOME, PIN_AZ_LIMIT_END, X_STEPPER_MINIMUM_ANGLE, X_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
+    //return stepperMotorMoveToAngleFromHome(stepperAz, PIN_AZ_LIMIT_HOME, PIN_AZ_LIMIT_END, X_STEPPER_MINIMUM_ANGLE, X_STEPPER_MAXIMUM_ANGLE, targetAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION, AZ_STEPPER_STEPS_PER_REV);
 
     //Check if targetAngle is within allowed range
     if (fabs(targetAngle) < X_STEPPER_MINIMUM_ANGLE) {
@@ -339,7 +339,7 @@ bool positionSetTargetAngleAzimuth(float azAngle) {
     } else if (fabs(targetAngle) > X_STEPPER_MAXIMUM_ANGLE) {
         OLED_print("Warning: Angle requested is greater than maximum angle", WARNING);
     } else {
-        stepperAzTargetSteps = convertAngleToTargetSteps(targetAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION);
+        stepperAzTargetSteps = convertAngleToTargetSteps(targetAngle, STEPPER_AZ_MOVE_IN_POSITIVE_DIRECTION, AZ_STEPPER_STEPS_PER_REV);
         moveSteppersToTargetStepsAz = true;
         return true;
     }

@@ -185,6 +185,23 @@ const colorDef<uint8_t> colors[6] MEMMODE={
   {{1,1},{1,0,0}},//titleColor
 };
 
+const char* const celestialObjects[] = {
+    "Sun",
+    "Moon",
+//    "Mercury",
+//    "Venus",
+//    "Mars",
+//    "Jupiter",
+//    "Saturn",
+//    "Uranus",
+//    "Neptune"
+};
+
+//const int objectCount = sizeof(celestialObjects) / sizeof(celestialObjects[0]);
+int selectedObject = 0;
+
+int azPosHomeAs = 180;
+
 // # Menu events
 //Return options can be proceed and quit but documentation is sparse
 //You can also return button inputs like "nav.doNav(escCmd)"
@@ -207,6 +224,20 @@ result idle(menuOut &o, idleEvent e) {
       break;
   }
 
+  return proceed;
+}
+
+result op_AzSouthPointAtSun(eventMask e) {
+  //Alt - Stop and home alt
+  stepperAlt.stop();
+  hasHomePositionAlt = performAltHome();
+
+  //Az - Stop stepper and set current position to 180 (south)
+  stepperAz.stop();
+  azStepperMotorSetCurrentPositionToAngle(azPosHomeAs);
+
+  setTargetToObject(celestialObjects[0]);
+  trackingRADecTarget = true;
   return proceed;
 }
 
@@ -239,18 +270,6 @@ result op_setLatLong(eventMask e) {
 result op_setWifi(eventMask e) {
   altAzPreferences.setWifiSsid(wifiSsid);
   altAzPreferences.setWifiPassword(wifiPassword);
-  return quit;
-}
-
-result showEvent(eventMask e, navNode& nav, prompt &item) {
-  return proceed;
-}
-
-result action1(eventMask e) {
-  return proceed;
-}
-
-result action2(eventMask e, navNode& nav, prompt &item) {
   return quit;
 }
 
@@ -296,34 +315,18 @@ result op_FactoryReset(eventMask e) {
   return quit;
 }
 
-int azPosHomeAs = 0;
 result menuEvent_azPosHomeAs(eventMask e) {
   char stringAzPosHomeAs[] = "   ";
   itoa(azPosHomeAs, stringAzPosHomeAs, 10);
   //sprintf(azPosHomeAs, "%d", stringAzPosHomeAs);
-  OLED_print(stringAzPosHomeAs, INFO);
+  OLED_print(stringAzPosHomeAs, INFO); //Char array is purely for printing to screen. Currently testing better options
 
-  //Stop stepper and set current position to 0
+  //Stop stepper and set current position to specified angle (0=N, 90=E, 180=S, 270=W)
   stepperAz.stop();
   azStepperMotorSetCurrentPositionToAngle(azPosHomeAs);
 
   return proceed;
 }
-
-const char* const celestialObjects[] = {
-    "Sun",
-    "Moon",
-//    "Mercury",
-//    "Venus",
-//    "Mars",
-//    "Jupiter",
-//    "Saturn",
-//    "Uranus",
-//    "Neptune"
-};
-
-const int objectCount = sizeof(celestialObjects) / sizeof(celestialObjects[0]);
-int selectedObject = 0;
 
 result op_setTargetToObject(eventMask e) {
     setTargetToObject(celestialObjects[selectedObject]);
@@ -386,7 +389,7 @@ MENU(subMenu_SetWifi, "Set WiFi", doNothing, noEvent, noStyle
   , EXIT("<Back")
 );
 
-CHOOSE(azPosHomeAs, choose_azPosHomeAs, "Set Az Pos Home as", doNothing, noEvent, noStyle
+CHOOSE(azPosHomeAs, choose_azPosHomeAs, "Set Az Home as", doNothing, noEvent, noStyle
   , VALUE("North here", 0, menuEvent_azPosHomeAs, enterEvent)
   , VALUE("East here", 90, menuEvent_azPosHomeAs, enterEvent)
   , VALUE("South here", 180, menuEvent_azPosHomeAs, enterEvent)
@@ -394,14 +397,14 @@ CHOOSE(azPosHomeAs, choose_azPosHomeAs, "Set Az Pos Home as", doNothing, noEvent
 );
 
 MENU(subMenu_Movement, "Movement", doNothing, noEvent, noStyle
-  , OP("Disable Steppers", op_disableSteppers, enterEvent)
-  , OP("Perform Alt Home", op_performAltHome, enterEvent)
   , FIELD(angleOffsetAlt, "Alt Offset", "°", -45, 45, 1, 0.1, doNothing, noEvent, noStyle)
-  , OP("Perform Az Home", op_performAzHome, enterEvent)
-  , SUBMENU(choose_azPosHomeAs)
   , FIELD(angleOffsetAz, "Az Offset", "°", -45, 45, 1, 0.1, doNothing, noEvent, noStyle)
   , OP("Begin Tracking", op_beginTracking, enterEvent)
   , OP("Stop Tracking", op_stopTracking, enterEvent)
+  , OP("Perform Alt Home", op_performAltHome, enterEvent)
+  , OP("Perform Az Home", op_performAzHome, enterEvent)
+  , SUBMENU(choose_azPosHomeAs)
+  , OP("Disable Steppers", op_disableSteppers, enterEvent)
   , EXIT("<Back")
 );
 
@@ -437,28 +440,10 @@ MENU(subMenu_FactoryReset, "Factory Reset", doNothing, noEvent, noStyle
   , EXIT("<Back")
 );
 
-bool toggleTest = false;
-TOGGLE(toggleTest, subMenu_toggleMenu, "toggleTest: ", doNothing, noEvent, noStyle //,doExit,enterEvent,noStyle
-  , VALUE("True", true, doNothing, noEvent)
-  , VALUE("False", false, doNothing, noEvent)
-);
 
-int selectTest = 0;
-SELECT(selectTest, subMenu_selectMenu, "Select", doNothing, noEvent, noStyle
-  , VALUE("Zero", 0, doNothing, noEvent)
-  , VALUE("One", 1, doNothing, noEvent)
-  , VALUE("Two", 2, doNothing, noEvent)
-);
-
-int chooseTest = -1;
-CHOOSE(chooseTest, subMenu_chooseMenu, "Choose", doNothing, noEvent, noStyle
-  , VALUE("First", 1, doNothing, noEvent)
-  , VALUE("Second", 2, doNothing, noEvent)
-  , VALUE("Third", 3, doNothing, noEvent)
-  , VALUE("Last", -1, doNothing, noEvent)
-);
 
 MENU(mainMenu, "Main menu", doNothing, noEvent, noStyle
+  , OP("Az as S. Target Sun", op_AzSouthPointAtSun, enterEvent)
   , SUBMENU(subMenu_Movement)
   , SUBMENU(subMenu_PointAtObject)
   , SUBMENU(subMenu_SetDateAndTime)
@@ -466,12 +451,7 @@ MENU(mainMenu, "Main menu", doNothing, noEvent, noStyle
   , SUBMENU(subMenu_SetWifi)
   , SUBMENU(toggle_tripodModeAltAz)
   , SUBMENU(subMenu_FactoryReset)
-  , OP("OpAnyEvent Act1", action1, anyEvent)
-  , OP("OpEnterEvent Act2", action2, enterEvent)
-  , SUBMENU(subMenu_toggleMenu)
-  , SUBMENU(subMenu_selectMenu)
-  , SUBMENU(subMenu_chooseMenu)
-  , EXIT("<Back")
+  , EXIT("<Back to Idle Screen")
 );
 
 
@@ -620,7 +600,7 @@ void setup() {
     Wire.begin(OLED_SDA, OLED_SCL);
 
     // Setup i2c DS3231 module
-    rtcDS3231.begin();
+    bool rtcAvailable = rtcDS3231.begin();
 
     // Setup OLED Menu
     #if DISPLAY_OUTPUT == SSD1306
@@ -655,17 +635,22 @@ void setup() {
     delay(250);
 
     // Setup stepper motors
-    stepperAlt.setMaxSpeed(2500);
+    stepperAlt.setMaxSpeed(2000);
     stepperAlt.setAcceleration(1000);
-    stepperAz.setMaxSpeed(2500);
+    stepperAz.setMaxSpeed(2000);
     stepperAz.setAcceleration(1000);
 
     // Optional, set current date and time to compile time. This does not set UTC time, however...
     //rtcDS3231.adjust(DateTime(F(__DATE__), F(__TIME__)));
 
-    // Set ESP32Time from I2C RTC module
-    DateTime now = rtcDS3231.now();
-    rtcESP32Time.setTime(now.second(), now.minute(), now.hour(), now.day(), now.month(), now.year());
+    if (rtcAvailable) {
+      // Set ESP32Time from I2C RTC module
+      DateTime now = rtcDS3231.now();
+      rtcESP32Time.setTime(now.second(), now.minute(), now.hour(), now.day(), now.month(), now.year());
+    } else {
+      // Else, fallback to hardcoded values
+      rtcESP32Time.setTime(0, 0, 12, 25, 7, 2026);
+    }
 
     // Load preferences from "eeprom" (flash memory on ESP32) into global variables
     // This includes latitude, longitude, wifi ssid and wifi password
@@ -760,7 +745,7 @@ void loop() {
   if (updateTrackingRADecCurrentMillis - updateTrackingRADecPreviousMillis >= updateTrackingRADecInterval) {
     updateTrackingRADecPreviousMillis = updateTrackingRADecCurrentMillis;
     if (trackingRADecTarget) {
-      positionSetTargetRADec(LX200TargetRA, LX200TargetDec);
+      trackingRADecTarget = positionSetTargetRADec(LX200TargetRA, LX200TargetDec); // If positionSetTargetRADec returns false, stop tracking
     }
   }
 }

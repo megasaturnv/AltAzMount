@@ -40,7 +40,8 @@ extern const uint8_t serialNumChars;
 extern const unsigned long updateTrackingRADecInterval;
 
 // Stepper motor settings
-extern const float STEPPER_STEPS_PER_REV;
+extern const double ALT_STEPPER_STEPS_PER_REV;
+extern const double AZ_STEPPER_STEPS_PER_REV;
 extern const int WITHIN_STEPS_TO_ARRIVE_AT_TARGET;
 extern const float ANGLE_TO_MOVE_OFF_DEPRESSED_LIMIT_SWITCH;
 extern const float ANGLE_ALLOWED_WITHIN_LIMIT_SWITCH_BEING_DEPRESSED;
