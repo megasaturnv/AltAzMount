@@ -4,6 +4,8 @@
 # AltAzMount
 Alt Az (Pan Tilt) mount that tracks celestial objects based on Right Ascension and Declination. Can accept LX200 commands from Stellarium via serial
 
+![video of Alt Az Mount design 2](/3D%20Print%20Design%202%20-%20Remix%20of%20isaac879/video.gif)
+
 ## ESP32 Code
 Contains the code for running on the ESP32 controller. Uses an MKS DLC32 as the main control board.
 
