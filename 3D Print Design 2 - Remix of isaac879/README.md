@@ -20,4 +20,6 @@ Google SketchUp version 8.0.14346 was used to modify the original design
 
 M3 screws and nut of various sizes required to build this mount. 4x M4 screws and nuts required for VESA mount.
 
+![video of Alt Az Mount design 2](/3D%20Print%20Design%202%20-%20Remix%20of%20isaac879/video.gif)
+
 ![image of Alt Az Mount design 2](/3D%20Print%20Design%202%20-%20Remix%20of%20isaac879/image.jpg)
