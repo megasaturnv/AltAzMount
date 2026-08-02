@@ -1,5 +1,6 @@
 gitignore/
-3D Prints - OpenSCAD/gears.scad
-3D Prints - SketchUp/*.skb
+*.skb
+*.gcode
+3D Print Design 1 - Original Design (Old)/3D Prints - OpenSCAD/gears.scad
 ESP32 Code/AltAzTracker_MKS_DLC32/ClickEncoder.h
 ESP32 Code/AltAzTracker_MKS_DLC32/ClickEncoder.cpp
