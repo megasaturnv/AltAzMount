@@ -2,15 +2,15 @@
 > This project is currently work in progress. Not everything will work as intended
 
 # AltAzMount
-Alt Az (Pan Tilt) mount that tracks celestial objects based on Right Ascension and Declination. Can accept LX200 commands from Stellarium via serial
+Alt Az (Pan Tilt) mount that tracks celestial objects based on Right Ascension and Declination. It can accept LX200 commands from planetarium software such as Stellarium via serial or it calculate the position of certain objects directly on the ESP32 and track them across the sky (currently only the sun and moon)
 
 ![video of Alt Az Mount design 2](/3D%20Print%20Design%202%20-%20Remix%20of%20isaac879/video.gif)
 
 ## ESP32 Code
-Contains the code for running on the ESP32 controller. Uses an MKS DLC32 as the main control board.
+Contains the code for running on the ESP32 controller. it uses an MKS DLC32 as the main control board and has an OLED with rotary encoder as an interface.
 
 ## Python Code
-Scripts that can control the mount to create an image based on the data received, or simulate visualisations of Alt Az movement.
+Scripts that can control the mount to create an image based on the data received or simulate visualisations of Alt-Az movement.
 
 ## 3D Print Design 1 - Original Design (Old)
 
@@ -25,12 +25,13 @@ M3 screws and nut of various sizes required to build this mount. 4x M4 screws an
 
 ### List of changes:
 * Added 18650s
-* Added OLED + rotary encoder board, 18650 USB C charge controller, balance board and battery guage
+* Added OLED + rotary encoder board, 18650 USB C charge controller, balance board and battery gauge
 * Added quick mount for tripods (varies slightly per tripod)
 * Added stepper motor sun shields
 * Added RTC module mount
 * Added 40mm fan mount
 * Added limit switch for altitude (tilt) axis
+* Added more mounting options such as quick connect for a tripod and a ground spike
 * Extended altitude (tilt) axis by 25mm upwards
 * Modified camera mount to use VESA with 75mm spacing
 * Modified design to use MKS DLC32 circuit board
